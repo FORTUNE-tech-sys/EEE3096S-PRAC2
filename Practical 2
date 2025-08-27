@@ -17,19 +17,19 @@ vectors:
 ASM_Main:
 
 @ Some code is given below for you to start with
-LDR R0, RCC_BASE @ Enable clock for GPIOA and B by setting bit 17 and 18 in RCC_AHBENR
+LDR R0, RCC_BASE      @ Enable clock for GPIOA and B by setting bit 17 and 18 in RCC_AHBENR
 LDR R1, [R0, #0x14]
 LDR R2, AHBENR_GPIOAB @ AHBENR_GPIOAB is defined under LITERALS at the end of the code
 ORRS R1, R1, R2
 STR R1, [R0, #0x14]
 
-LDR R0, GPIOA_BASE @ Enable pull-up resistors for pushbuttons
+LDR R0, GPIOA_BASE    @ Enable pull-up resistors for pushbuttons
 MOVS R1, #0b01010101
 STR R1, [R0, #0x0C]
-LDR R1, GPIOB_BASE @ Set pins connected to LEDs to outputs
+LDR R1, GPIOB_BASE    @ Set pins connected to LEDs to outputs
 LDR R2, MODER_OUTPUT
 STR R2, [R1, #0]
-MOVS R2, #0 @ NOTE: R2 will be dedicated to holding the value on the LEDs
+MOVS R2, #0           @ NOTE: R2 will be dedicated to holding the value on the LEDs
 
 
 @ TODO: Add code, labels and logic for button checks and LED patterns
@@ -45,50 +45,50 @@ main_loop:
 
 write_leds:
 @ default
-STR R2, [R1, #0x14] @ Write whatever value is in R2 currently to our ODR to glow LEDs
+STR R2, [R1, #0x14]    @ Write whatever value is in R2 currently to our ODR to glow LEDs
 
 @ Checking if both SW0 and SW1 are pressed
-MOVS R5,#3 @ Ading 3 to register R5 to stick with thub syntax 0b11
-LDR R3, [R0, #0x10] @ Readng the IDR
+MOVS R5,#3             @ Ading 3 to register R5 to stick with thub syntax 0b11
+LDR R3, [R0, #0x10]    @ Readng the IDR
 ANDS R3, R3, R5
-CMP R3, #0 @ Check if the twoswiches are pressed
+CMP R3, #0             @ Check if the twoswiches are pressed
 BEQ SW0_SW1_BOTH_Pressed
 
 @ Checking if SW0 alone is pressed
-MOVS R5,#1 @ Ading 1 to register R5 to stick with thub syntax
-LDR R3, [R0, #0x10] @ Load the value of the IDR register to register 3 R0 already conctains adress to GPIOABase
-ANDS R3,R3, R5 @Bitmasiking to read value on SWO
-CMP R3,#0 @ Is the value on the swich = 0 (pull up) output 0 when switch pressed
+MOVS R5,#1             @ Ading 1 to register R5 to stick with thub syntax
+LDR R3, [R0, #0x10]    @ Load the value of the IDR register to register 3 R0 already conctains adress to GPIOABase
+ANDS R3,R3, R5         @Bitmasiking to read value on SWO
+CMP R3,#0              @ Is the value on the swich = 0 (pull up) output 0 when switch pressed
 BEQ SWO_Pressed
 
 
 @ Cheking if SW1 alone is pressed
 
-MOVS R5,#2 @ now we are checking the second bit of IDR representing SW1
-LDR R3, [R0, #0x10] @ again check whats in the IDR and store it in R3
+MOVS R5,#2             @ now we are checking the second bit of IDR representing SW1
+LDR R3, [R0, #0x10]    @ again check whats in the IDR and store it in R3
 ANDS R3, R3, R5
-CMP R3,#0 @ check if bitmask results in 0 if so :
-BEQ SW1_Pressed @ If switch 1 is pressed
+CMP R3,#0              @ check if bitmask results in 0 if so :
+BEQ SW1_Pressed        @ If switch 1 is pressed
 
 @ now we are checking SW2 is pressed
 
-MOVS R5,#4 @ Checking switch 2
-LDR R3, [R0, #0x10] @ again check whats in the IDR and store it in R3
+MOVS R5,#4             @ Checking switch 2
+LDR R3, [R0, #0x10]    @ again check whats in the IDR and store it in R3
 ANDS R3, R3, R5
-CMP R3, #0 @ Check ifthe switch is pressed
-BEQ SW2_Pressed @ Now we know SW2 is pressed
+CMP R3, #0             @ Check ifthe switch is pressed
+BEQ SW2_Pressed        @ Now we know SW2 is pressed
 
 @ Checking if SW3 is pressed
 
-MOVS R5, #8 @ updating the register to check the last value
-LDR R3, [R0, #0x10] @ Go fetch value from IDR store it in R3
-ANDS R3, R3, R5 @ And it withe the bitmask placed at R5
-CMP R3, #0 @ Is the value at SW0 = 0?
+MOVS R5, #8            @ updating the register to check the last value
+LDR R3, [R0, #0x10]    @ Go fetch value from IDR store it in R3
+ANDS R3, R3, R5        @ And it withe the bitmask placed at R5
+CMP R3, #0             @ Is the value at SW0 = 0?
 BEQ SW3_Pressed
 
 @ Run defualt if none are pressed
-BL delay_For_07_s @ Branch and save a bookmark so you can return here
-ADDS R2,R2,#1 @ Add a value of 1 to increase the counter value
+BL delay_For_07_s      @ Branch and save a bookmark so you can return here
+ADDS R2,R2,#1          @ Add a value of 1 to increase the counter value
 CMP R2,0b11111111
 BEQ reched_limit_Reset_counter
 B main_loop
@@ -96,26 +96,26 @@ reched_limit_Reset_counter:
 MOVS R2, #0
 B write_leds
 delay_For_07_s:
-LDR R4, =LONG_DELAY_CNT @ Load label pointing to the adress of 32 bit word onto R4
-LDR R4, [R4] @ Extract the value frome this label, now the value in the label is contained in R4
+LDR R4, = LONG_DELAY_CNT@ Load label pointing to the adress of 32 bit word onto R4
+LDR R4, [R4]            @ Extract the value frome this label, now the value in the label is contained in R4
 delay_loop:
-SUBS R4,R4,#1 @subtract a value of 1 from whatever the value is
-BNE delay_loop @ While its not equal continue looping
-BX LR @ Branch exchange, return to bookmark, and go to the address of the next line
+SUBS R4,R4,#1           @subtract a value of 1 from whatever the value is
+BNE delay_loop          @ While its not equal continue looping
+BX LR                   @ Branch exchange, return to bookmark, and go to the address of the next line
 
 @ secnd delay
 delay_03s:
-LDR R4, =SHORT_DELAY_CNT @ store label pointer
-LDR R4, [R4] @ Extract the value from the label @ This will be 800 000
+LDR R4, =SHORT_DELAY_CNT@ store label pointer
+LDR R4, [R4]            @ Extract the value from the label @ This will be 800 000
 delay2:
-SUBS R4, R4, #1 @ Keeps subtracting 1 and sets Z flags when R4 = 0 So we dont need to compare
-BNE delay2 @ Branch if its not equalto 0
-BX LR @ Branch back to delay_03s
+SUBS R4, R4, #1         @ Keeps subtracting 1 and sets Z flags when R4 = 0 So we dont need to compare
+BNE delay2              @ Branch if its not equalto 0
+BX LR                   @ Branch back to delay_03s
 
 SW0_SW1_BOTH_Pressed:
 BL delay_03s
-ADDS R2,R2, #2 @ Increment the values by 2
-CMP R2, #0b11111111 @ Rember adding even numbers wont always reach 255
+ADDS R2,R2, #2          @ Increment the values by 2
+CMP R2, #0b11111111     @ Rember adding even numbers wont always reach 255
 BGT reched_limit_Reset_counter @ If R2-0b11111111 >0 then the counter has reached its optimal value
 B write_leds @ Branch back to write_leds and restart the proceess
 
@@ -139,14 +139,6 @@ B write_leds
 SW3_Pressed:
 B write_leds
 
-
-
-
-
-
-
-
-
 @ LITERALS; DO NOT EDIT
 .align
 RCC_BASE: .word 0x40021000
@@ -156,5 +148,5 @@ GPIOB_BASE: .word 0x48000400
 MODER_OUTPUT: .word 0x5555
 
 @ TODO: Add your own values for these delays
-LONG_DELAY_CNT: .word 1866667 @ (0.7 x 8x10^6)/3
-SHORT_DELAY_CNT: .word 800000 @ (0.3 x 8x10^6)/3
+LONG_DELAY_CNT: .word 600000@1866667
+SHORT_DELAY_CNT: .word 400000@800000
